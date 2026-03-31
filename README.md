@@ -24,7 +24,7 @@ To use this server, you need to give it permission to access your Google Account
 ## How to run the server
 You can start the server by running the following command in your terminal:
 ```bash
-python google_people_mcp_server.py
+python server.py
 ```
 You can also specify the transport, host, and port if needed.
 
