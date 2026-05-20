@@ -3,10 +3,11 @@ import logging
 
 from fastmcp import FastMCP
 
-from .schemas import JsonStringToolResponse, OAuthTokenData
+from .schemas import JsonStringToolResponse
 from .service import get_service
 
 logger = logging.getLogger("google-contacts-mcp-server")
+
 
 class _ToolCollector:
     def __init__(self):
@@ -35,7 +36,7 @@ def register_tools(real_mcp: FastMCP) -> None:
     name="get_person",
     description="Get a person from Google Contacts",
 )
-def get_person(oauth_token: OAuthTokenData, resource_name: str, person_fields: str) -> JsonStringToolResponse:
+def get_person(resource_name: str, person_fields: str) -> JsonStringToolResponse:
     """
     Gets a person from Google Contacts.
 
@@ -45,7 +46,7 @@ def get_person(oauth_token: OAuthTokenData, resource_name: str, person_fields: s
     :return: A JSON string of the person.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.people()
             .get(resourceName=resource_name, personFields=person_fields)
@@ -62,7 +63,6 @@ def get_person(oauth_token: OAuthTokenData, resource_name: str, person_fields: s
     description="List connections from Google Contacts",
 )
 def list_connections(
-    oauth_token: OAuthTokenData,
     resource_name: str,
     person_fields: str,
     page_size: int = None,
@@ -79,7 +79,7 @@ def list_connections(
     :return: A JSON string of the connections.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.people()
             .connections()
@@ -101,7 +101,7 @@ def list_connections(
     name="create_contact",
     description="Create a contact in Google Contacts",
 )
-def create_contact(oauth_token: OAuthTokenData, person: str) -> JsonStringToolResponse:
+def create_contact(person: str) -> JsonStringToolResponse:
     """
     Creates a contact in Google Contacts.
 
@@ -110,7 +110,7 @@ def create_contact(oauth_token: OAuthTokenData, person: str) -> JsonStringToolRe
     :return: A JSON string of the created person.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         person_dict = json.loads(person)
         response = service.people().createContact(body=person_dict).execute()
         return json.dumps(response)
@@ -124,7 +124,9 @@ def create_contact(oauth_token: OAuthTokenData, person: str) -> JsonStringToolRe
     description="Update a contact in Google Contacts",
 )
 def update_contact(
-    oauth_token: OAuthTokenData, resource_name: str, update_person_fields: str, person: str
+    resource_name: str,
+    update_person_fields: str,
+    person: str,
 ) -> JsonStringToolResponse:
     """
     Updates a contact in Google Contacts.
@@ -136,7 +138,7 @@ def update_contact(
     :return: A JSON string of the updated person.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         person_dict = json.loads(person)
         response = (
             service.people()
@@ -157,7 +159,7 @@ def update_contact(
     name="delete_contact",
     description="Delete a contact from Google Contacts",
 )
-def delete_contact(oauth_token: OAuthTokenData, resource_name: str) -> JsonStringToolResponse:
+def delete_contact(resource_name: str) -> JsonStringToolResponse:
     """
     Deletes a contact from Google Contacts.
 
@@ -166,7 +168,7 @@ def delete_contact(oauth_token: OAuthTokenData, resource_name: str) -> JsonStrin
     :return: An empty JSON string if successful.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = service.people().deleteContact(resourceName=resource_name).execute()
         return json.dumps(response)
     except Exception as e:
@@ -178,7 +180,7 @@ def delete_contact(oauth_token: OAuthTokenData, resource_name: str) -> JsonStrin
     name="search_contacts",
     description="Search for contacts in Google Contacts",
 )
-def search_contacts(oauth_token: OAuthTokenData, query: str, read_mask: str) -> JsonStringToolResponse:
+def search_contacts(query: str, read_mask: str) -> JsonStringToolResponse:
     """
     Searches for contacts in Google Contacts.
 
@@ -188,7 +190,7 @@ def search_contacts(oauth_token: OAuthTokenData, query: str, read_mask: str) -> 
     :return: A JSON string of the search results.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.people().searchContacts(query=query, readMask=read_mask).execute()
         )
@@ -203,7 +205,7 @@ def search_contacts(oauth_token: OAuthTokenData, query: str, read_mask: str) -> 
     description="List contact groups in Google Contacts",
 )
 def list_contact_groups(
-    oauth_token: OAuthTokenData, page_size: int = None, page_token: str = None
+    page_size: int = None, page_token: str = None
 ) -> JsonStringToolResponse:
     """
     Lists contact groups in Google Contacts.
@@ -214,7 +216,7 @@ def list_contact_groups(
     :return: A JSON string of the contact groups.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.contactGroups()
             .list(pageSize=page_size, pageToken=page_token)
@@ -230,7 +232,7 @@ def list_contact_groups(
     name="get_contact_group",
     description="Get a contact group from Google Contacts",
 )
-def get_contact_group(oauth_token: OAuthTokenData, resource_name: str) -> JsonStringToolResponse:
+def get_contact_group(resource_name: str) -> JsonStringToolResponse:
     """
     Gets a contact group from Google Contacts.
 
@@ -239,7 +241,7 @@ def get_contact_group(oauth_token: OAuthTokenData, resource_name: str) -> JsonSt
     :return: A JSON string of the contact group.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = service.contactGroups().get(resourceName=resource_name).execute()
         return json.dumps(response)
     except Exception as e:
@@ -251,7 +253,7 @@ def get_contact_group(oauth_token: OAuthTokenData, resource_name: str) -> JsonSt
     name="create_contact_group",
     description="Create a contact group in Google Contacts",
 )
-def create_contact_group(oauth_token: OAuthTokenData, contact_group: str) -> JsonStringToolResponse:
+def create_contact_group(contact_group: str) -> JsonStringToolResponse:
     """
     Creates a contact group in Google Contacts.
 
@@ -260,7 +262,7 @@ def create_contact_group(oauth_token: OAuthTokenData, contact_group: str) -> Jso
     :return: A JSON string of the created contact group.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         contact_group_dict = json.loads(contact_group)
         response = service.contactGroups().create(body=contact_group_dict).execute()
         return json.dumps(response)
@@ -274,7 +276,7 @@ def create_contact_group(oauth_token: OAuthTokenData, contact_group: str) -> Jso
     description="Update a contact group in Google Contacts",
 )
 def update_contact_group(
-    oauth_token: OAuthTokenData, resource_name: str, contact_group: str
+    resource_name: str, contact_group: str
 ) -> JsonStringToolResponse:
     """
     Updates a contact group in Google Contacts.
@@ -285,7 +287,7 @@ def update_contact_group(
     :return: A JSON string of the updated contact group.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         contact_group_dict = json.loads(contact_group)
         response = (
             service.contactGroups()
@@ -302,7 +304,7 @@ def update_contact_group(
     name="delete_contact_group",
     description="Delete a contact group from Google Contacts",
 )
-def delete_contact_group(oauth_token: OAuthTokenData, resource_name: str) -> JsonStringToolResponse:
+def delete_contact_group(resource_name: str) -> JsonStringToolResponse:
     """
     Deletes a contact group from Google Contacts.
 
@@ -311,7 +313,7 @@ def delete_contact_group(oauth_token: OAuthTokenData, resource_name: str) -> Jso
     :return: An empty JSON string if successful.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = service.contactGroups().delete(resourceName=resource_name).execute()
         return json.dumps(response)
     except Exception as e:
@@ -323,7 +325,7 @@ def delete_contact_group(oauth_token: OAuthTokenData, resource_name: str) -> Jso
     name="batch_get_contact_groups",
     description="Get multiple contact groups from Google Contacts",
 )
-def batch_get_contact_groups(oauth_token: OAuthTokenData, resource_names: str) -> JsonStringToolResponse:
+def batch_get_contact_groups(resource_names: str) -> JsonStringToolResponse:
     """
     Gets multiple contact groups from Google Contacts.
 
@@ -332,7 +334,7 @@ def batch_get_contact_groups(oauth_token: OAuthTokenData, resource_names: str) -
     :return: A JSON string of the contact groups.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.contactGroups()
             .batchGet(resourceNames=resource_names.split(","))
@@ -349,7 +351,9 @@ def batch_get_contact_groups(oauth_token: OAuthTokenData, resource_names: str) -
     description="List other contacts in Google Contacts",
 )
 def list_other_contacts(
-    oauth_token: OAuthTokenData, read_mask: str, page_size: int = None, page_token: str = None
+    read_mask: str,
+    page_size: int = None,
+    page_token: str = None,
 ) -> JsonStringToolResponse:
     """
     Lists other contacts in Google Contacts.
@@ -361,7 +365,7 @@ def list_other_contacts(
     :return: A JSON string of the other contacts.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.otherContacts()
             .list(
@@ -381,7 +385,7 @@ def list_other_contacts(
     name="search_other_contacts",
     description="Search other contacts in Google Contacts",
 )
-def search_other_contacts(oauth_token: OAuthTokenData, query: str, read_mask: str) -> JsonStringToolResponse:
+def search_other_contacts(query: str, read_mask: str) -> JsonStringToolResponse:
     """
     Searches other contacts in Google Contacts.
 
@@ -391,7 +395,7 @@ def search_other_contacts(oauth_token: OAuthTokenData, query: str, read_mask: st
     :return: A JSON string of the search results.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.otherContacts().search(query=query, readMask=read_mask).execute()
         )
@@ -406,7 +410,7 @@ def search_other_contacts(oauth_token: OAuthTokenData, query: str, read_mask: st
     description="Copy an other contact to my contacts group in Google Contacts",
 )
 def copy_other_contact_to_my_contacts_group(
-    oauth_token: OAuthTokenData, resource_name: str, copy_mask: str
+    resource_name: str, copy_mask: str
 ) -> JsonStringToolResponse:
     """
     Copies an other contact to my contacts group in Google Contacts.
@@ -417,7 +421,7 @@ def copy_other_contact_to_my_contacts_group(
     :return: A JSON string of the copied person.
     """
     try:
-        service = get_service(oauth_token)
+        service = get_service()
         response = (
             service.otherContacts()
             .copyOtherContactToMyContactsGroup(
